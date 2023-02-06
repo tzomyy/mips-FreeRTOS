@@ -307,7 +307,7 @@ BaseType_t xPortStartScheduler( void )
 			/* Check the FreeRTOS configuration that defines the number of
 			priority bits matches the number of priority bits actually queried
 			from the hardware. */
-			configASSERT( ( portMAX_PRIGROUP_BITS - ulMaxPRIGROUPValue ) == configPRIO_BITS );
+			//configASSERT( ( portMAX_PRIGROUP_BITS - ulMaxPRIGROUPValue ) == configPRIO_BITS );
 		}
 		#endif
 

@@ -9,38 +9,24 @@
 #include "example.h"
 #include "gpio.h"
 
-TaskHandle_t controllerHandle, togglerHandle;
+TaskHandle_t controllerHandle, defferedHandle;
 
-void exampleTaskFunc(void *param) {
-
+void defferedTask(void *param) {
 	while (1) {
-		HAL_GPIO_TogglePin(GPIOC, (uint32_t) param);
-
-		for (int i = 0; i < 1000000; i++){
-			i++;
-		}
-	}
-}
-
-void taskController(void *param){
-	while(1){
-		xTaskNotifyGive(togglerHandle);
-		vTaskDelay(pdMS_TO_TICKS(1000));
-	}
-
-}
-
-void taskToggler(void* param){
-	while(1){
 		ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
-		HAL_GPIO_TogglePin(GPIOC, (uint32_t) param);
+		HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_0);
+	}
+}
+
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
+	if (GPIO_Pin == GPIO_PIN_0) {
+		BaseType_t woken = pdFALSE;
+		vTaskNotifyGiveFromISR(defferedHandle, &woken);
 	}
 }
 
 void exampleInit() {
-	xTaskCreate(exampleTaskFunc, "controller", 128, (void*) GPIO_PIN_0, 2,
-			&controllerHandle);
-	xTaskCreate(exampleTaskFunc, "toggler", 128, (void*) GPIO_PIN_1, 2,
-			&togglerHandle);
+	xTaskCreate(defferedTask, "defferedTask", 128, (void*) GPIO_PIN_0, 2,
+			&defferedHandle);
 }
 

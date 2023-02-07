@@ -9,6 +9,8 @@
 #include "example.h"
 #include "gpio.h"
 
+TaskHandle_t controllerHandle, togglerHandle;
+
 void exampleTaskFunc(void *param) {
 
 	while (1) {
@@ -20,10 +22,25 @@ void exampleTaskFunc(void *param) {
 	}
 }
 
+void taskController(void *param){
+	while(1){
+		xTaskNotifyGive(togglerHandle);
+		vTaskDelay(pdMS_TO_TICKS(1000));
+	}
+
+}
+
+void taskToggler(void* param){
+	while(1){
+		ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+		HAL_GPIO_TogglePin(GPIOC, (uint32_t) param);
+	}
+}
+
 void exampleInit() {
-	xTaskCreate(exampleTaskFunc, "exampleTaskFunc0", 128, (void*) GPIO_PIN_0, 2,
-			NULL);
-	xTaskCreate(exampleTaskFunc, "exampleTaskFunc1", 128, (void*) GPIO_PIN_1, 1,
-			NULL);
+	xTaskCreate(exampleTaskFunc, "controller", 128, (void*) GPIO_PIN_0, 2,
+			&controllerHandle);
+	xTaskCreate(exampleTaskFunc, "toggler", 128, (void*) GPIO_PIN_1, 2,
+			&togglerHandle);
 }
 

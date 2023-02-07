@@ -13,7 +13,10 @@ void exampleTaskFunc(void *param) {
 
 	while (1) {
 		HAL_GPIO_TogglePin(GPIOC, (uint32_t) param);
-		vTaskDelay(1000);
+
+		for (int i = 0; i < 1000000; i++){
+			i++;
+		}
 	}
 }
 
